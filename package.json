@@ -1,14 +1,17 @@
 {
-  "name": "@ctera/n8n-nodes-ctera-ai",
-  "version": "0.2.0",
-  "description": "n8n community node for CTERA AI MCP integration - enables semantic search, chat, and expert discovery",
+  "name": "@ctera/n8n-nodes-ctera",
+  "version": "0.3.0",
+  "description": "n8n community nodes for CTERA Portal - includes AI/RAG integration and filesystem operations via MCP",
   "keywords": [
     "n8n-community-node-package",
     "n8n",
     "ctera",
     "ai",
     "mcp",
-    "rag"
+    "rag",
+    "filesystem",
+    "storage",
+    "file-management"
   ],
   "license": "MIT",
   "homepage": "https://github.com/ctera/ctera-n8n-nodes",
@@ -38,10 +41,12 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/CteraAiMcpApi.credentials.js"
+      "dist/credentials/CteraAiMcpApi.credentials.js",
+      "dist/credentials/CteraFilesystemApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/CteraAi/CteraAi.node.js"
+      "dist/nodes/CteraAi/CteraAi.node.js",
+      "dist/nodes/CteraFilesystem/CteraFilesystem.node.js"
     ]
   },
   "devDependencies": {

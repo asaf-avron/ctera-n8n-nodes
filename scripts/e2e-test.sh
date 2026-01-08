@@ -20,29 +20,34 @@ echo ""
 
 # Step 1: Get token from Portal
 echo "📥 Step 1: Getting token from Portal..."
-TOKEN_RESPONSE=$(curl -sk -X POST "$PORTAL_URL/ServicesPortal/v1/auth/token" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "username=$USERNAME&password=$PASSWORD" 2>&1)
+# First, login to get session cookie
+LOGIN_RESPONSE=$(curl -sk -c /tmp/e2e-cookies.txt -X POST "$PORTAL_URL/ServicesPortal/api/login?j_username=$USERNAME&j_password=$PASSWORD" 2>&1)
 
-# Try to extract token from various response formats
+if ! echo "$LOGIN_RESPONSE" | grep -q "Login succeed"; then
+    echo "❌ Login failed"
+    echo "Response: $LOGIN_RESPONSE"
+    exit 1
+fi
+
+# Then get JWT token using session cookie
+TOKEN_RESPONSE=$(curl -sk -b /tmp/e2e-cookies.txt -X POST "$PORTAL_URL/ServicesPortal/v2/auth/token" \
+  -H "Content-Type: application/json" \
+  -d "{\"audience\":\"mcp\",\"subject\":\"$USERNAME\"}" 2>&1)
+
+# Extract token from JSON response
 TOKEN=$(echo "$TOKEN_RESPONSE" | python -c "
 import sys, json
 try:
     data = json.load(sys.stdin)
-    print(data.get('access_token') or data.get('token') or data.get('jwt') or '')
+    print(data.get('token') or data.get('access_token') or '')
 except:
     print('')
 " 2>/dev/null)
 
 if [ -z "$TOKEN" ]; then
-    # Maybe the response IS the token directly
-    if [[ "$TOKEN_RESPONSE" == eyJ* ]]; then
-        TOKEN="$TOKEN_RESPONSE"
-    else
-        echo "❌ Failed to get token from Portal"
-        echo "Response: $TOKEN_RESPONSE"
-        exit 1
-    fi
+    echo "❌ Failed to get token from Portal"
+    echo "Response: $TOKEN_RESPONSE"
+    exit 1
 fi
 
 echo "✅ Token received: ${TOKEN:0:50}..."

@@ -4,6 +4,10 @@
 
 set -e
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 PORTAL_URL="${PORTAL_URL:-https://127.0.0.1:443}"
 MCP_URL="${MCP_URL:-http://localhost:81}"
 USERNAME="${1:-a1}"
@@ -78,7 +82,7 @@ echo ""
 
 # Step 4: Show unit test results
 echo -e "${BLUE}🧪 Step 4: Running Unit Tests...${NC}"
-cd /c/dev/ctera-n8n-nodes
+cd "$PROJECT_DIR"
 if npm test -- --silent 2>&1 | grep -q "Tests:.*passed"; then
     TEST_OUTPUT=$(npm test -- --silent 2>&1 | tail -3)
     echo -e "${GREEN}✅ $TEST_OUTPUT${NC}"

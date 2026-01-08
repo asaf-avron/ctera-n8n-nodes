@@ -23,7 +23,11 @@ export class CteraFilesystem implements INodeType {
 		credentials: [
 			{
 				name: 'cteraFilesystemApi',
-				required: true,
+				required: false,
+			},
+			{
+				name: 'cteraPortalOAuth2Api',
+				required: false,
 			},
 		],
 		properties: [
@@ -378,10 +382,25 @@ export class CteraFilesystem implements INodeType {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
 
-		const credentials = await this.getCredentials('cteraFilesystemApi');
-		const bearerToken = credentials.bearerToken as string;
-		const allowUnauthorizedCerts = credentials.allowUnauthorizedCerts as boolean;
-		const mcpServerUrl = (credentials.serverUrl as string).replace(/\/$/, '');
+		// Try to get OAuth2 credentials first, fall back to simple bearer token
+		let bearerToken: string;
+		let allowUnauthorizedCerts = false;
+		let mcpServerUrl: string;
+
+		try {
+			// Try OAuth2 credential first
+			const oauth2Credentials = await this.getCredentials('cteraPortalOAuth2Api');
+			const oauthTokenData = oauth2Credentials.oauthTokenData as any;
+			bearerToken = oauthTokenData?.access_token as string;
+			mcpServerUrl = `${(oauth2Credentials.portalUrl as string).replace(/\/$/, '')}/_SRV/MCP`;
+			allowUnauthorizedCerts = false; // OAuth2 should use proper SSL
+		} catch {
+			// Fall back to simple bearer token credential
+			const simpleCredentials = await this.getCredentials('cteraFilesystemApi');
+			bearerToken = simpleCredentials.bearerToken as string;
+			allowUnauthorizedCerts = simpleCredentials.allowUnauthorizedCerts as boolean;
+			mcpServerUrl = (simpleCredentials.serverUrl as string).replace(/\/$/, '');
+		}
 
 		for (let i = 0; i < items.length; i++) {
 			try {
@@ -529,31 +548,41 @@ export class CteraFilesystem implements INodeType {
 					});
 				}
 
-				// Construct JSON-RPC 2.0 request
-				const requestBody = {
-					jsonrpc: '2.0',
-					method: 'tools/call',
-					params: {
-						name: toolName,
-						arguments: toolArgs,
-					},
-					id: i + 1,
-				};
+			// Construct JSON-RPC 2.0 request
+			const requestBody = {
+				jsonrpc: '2.0',
+				method: 'tools/call',
+				params: {
+					name: toolName,
+					arguments: toolArgs,
+				},
+				id: i + 1,
+			};
 
-				// Make HTTP request to MCP server
-				const response = await this.helpers.httpRequest({
-					method: 'POST',
-					url: `${mcpServerUrl}/mcp/`,
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${bearerToken}`,
-					},
-					body: JSON.stringify(requestBody),
-					skipSslCertificateValidation: allowUnauthorizedCerts,
-				});
+			// DEBUG: Log request
+			console.log('🔍 MCP Request URL:', `${mcpServerUrl}/mcp/`);
+			console.log('🔍 MCP Request Body:', JSON.stringify(requestBody, null, 2));
 
-				// Parse response
-				const parsedResponse = typeof response === 'string' ? JSON.parse(response) : response;
+			// Make HTTP request to MCP server
+			const response = await this.helpers.httpRequest({
+				method: 'POST',
+				url: `${mcpServerUrl}/mcp/`,
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${bearerToken}`,
+				},
+				body: JSON.stringify(requestBody),
+				skipSslCertificateValidation: allowUnauthorizedCerts,
+			});
+
+			// DEBUG: Log raw response
+			console.log('🔍 MCP Raw Response:', JSON.stringify(response, null, 2));
+
+			// Parse response
+			const parsedResponse = typeof response === 'string' ? JSON.parse(response) : response;
+
+			// DEBUG: Log parsed response
+			console.log('🔍 MCP Parsed Response:', JSON.stringify(parsedResponse, null, 2));
 
 				// Handle MCP error responses
 				if (parsedResponse.error) {
@@ -564,24 +593,35 @@ export class CteraFilesystem implements INodeType {
 					);
 				}
 
-				// Extract result from MCP response
-				let result: unknown = null;
-				if (parsedResponse.result && parsedResponse.result.content) {
-					const content = parsedResponse.result.content[0];
-					if (content && content.type === 'text') {
-						try {
-							result = JSON.parse(content.text);
-						} catch {
-							result = content.text;
-						}
-					} else {
-						result = content;
+			// Extract result from MCP response
+			let result: unknown = null;
+			if (parsedResponse.result && parsedResponse.result.content) {
+				const content = parsedResponse.result.content[0];
+				if (content && content.type === 'text') {
+					try {
+						// Convert Python syntax to JSON syntax
+						let jsonText = content.text
+							.replace(/'/g, '"')           // Single quotes to double quotes
+							.replace(/None/g, 'null')     // Python None to JSON null
+							.replace(/True/g, 'true')     // Python True to JSON true
+							.replace(/False/g, 'false');  // Python False to JSON false
+						
+						result = JSON.parse(jsonText);
+					} catch {
+						result = content.text;
 					}
 				} else {
-					result = parsedResponse.result;
+					result = content;
 				}
+			} else {
+				result = parsedResponse.result;
+			}
 
-				// Handle fan-out for list operations (directory list, walk, versions)
+			// DEBUG: Log extracted result
+			console.log('🔍 Extracted Result:', JSON.stringify(result, null, 2));
+			console.log('🔍 Result is Array:', Array.isArray(result), 'Length:', Array.isArray(result) ? result.length : 'N/A');
+
+			// Handle fan-out for list operations (directory list, walk, versions)
 				if (
 					(resource === 'directory' && (operation === 'list' || operation === 'walk')) ||
 					(resource === 'version' && operation === 'list')

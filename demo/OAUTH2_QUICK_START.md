@@ -1,10 +1,10 @@
 # ⚡ OAuth2 Quick Start - Like Claude Desktop
 
-**Works just like Claude!** Only need 4 fields:
+**Simple OAuth2 setup!** Just need:
 - Portal URL
-- Tenant ID
-- Client ID
-- Client Secret
+- Tenant ID  
+- Client ID & Secret
+- Scope (your API permissions)
 
 ---
 
@@ -44,19 +44,20 @@ Open: **http://localhost:5678**
 
 1. **Credentials** → **Add Credential**
 2. Search for **"CTERA Portal OAuth2 API"**
-3. Fill in **only 4 fields**:
+3. Fill in the fields:
 
 | Field | Value |
 |-------|-------|
-| **Portal URL** | `https://udi.ctera.me` |
-| **Tenant ID** | `bc628184-c9ef-43d6-b578-c5da746783ab` |
-| **Client ID** | `524e4423-a684-4c70-82f2-33b0168e8e87` |
-| **Client Secret** | Your secret value from Azure Portal |
+| **Portal URL** | Your CTERA Portal URL (e.g., `https://your-portal.ctera.com`) |
+| **Tenant ID** | Your Azure AD Tenant ID |
+| **Client ID** | Your App Registration Client ID |
+| **Client Secret** | Your App Registration Client Secret |
+| **Scope** | `api://YOUR-CLIENT-ID/access openid profile offline_access` |
 
 4. Click **Connect my account** → Sign in with Microsoft
 5. Done! ✅
 
-**Note**: Authorization URL and Token URL are automatically configured based on your Tenant ID.
+**Note**: Authorization URL and Token URL are automatically constructed from your Tenant ID.
 
 ---
 
@@ -92,20 +93,23 @@ Only need:
 ✓ Tenant ID
 ✓ Client ID  
 ✓ Client Secret
-= 4 fields - same as Claude!
+✓ Scope
+= 5 fields, URLs auto-generated!
 ```
 
-**Everything else is automatic!**
+**Authorization and Token URLs are constructed automatically from your Tenant ID!**
 
 ---
 
 ## 🔑 How It Works
 
-The credential automatically constructs:
+The credential automatically constructs URLs from your Tenant ID:
 - **Authorization URL**: `https://login.microsoftonline.com/{your-tenant-id}/oauth2/v2.0/authorize`
 - **Token URL**: `https://login.microsoftonline.com/{your-tenant-id}/oauth2/v2.0/token`
-- **Scopes**: `User.Read offline_access openid profile`
-- **MCP Endpoint**: `{your-portal-url}/_SRV/MCP/mcp`
+
+You configure:
+- **Scope**: Your API permissions (e.g., `api://client-id/access openid profile offline_access`)
+- **MCP Endpoint**: Automatically uses `{your-portal-url}/_SRV/MCP/mcp`
 
 ---
 

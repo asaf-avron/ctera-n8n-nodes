@@ -9,44 +9,51 @@ export class CteraPortalOAuth2Api implements ICredentialType {
 	name = 'cteraPortalOAuth2Api';
 	extends = ['oAuth2Api'];
 	displayName = 'CTERA Portal OAuth2 API';
-	documentationUrl = 'https://github.com/ctera/ctera-n8n-nodes#readme';
+	documentationUrl = 'https://github.com/ctera/ctera-n8n-nodes#oauth2-setup';
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Portal URL',
 			name: 'portalUrl',
 			type: 'string',
-			default: 'https://udi.ctera.me',
+			default: '',
 			required: true,
-			placeholder: 'https://udi.ctera.me',
-			description: 'Base URL of your CTERA Portal (without /_SRV/MCP/mcp)',
+			placeholder: 'https://your-portal.ctera.com',
+			description: 'Base URL of your CTERA Portal',
 		},
-	{
-		displayName: 'Grant Type',
-		name: 'grantType',
-		type: 'hidden',
-		default: 'authorizationCode',
-	},
-	{
-		displayName: 'Authorization URL',
-		name: 'authUrl',
-		type: 'string',
-		default: 'https://login.microsoftonline.com/bc628184-c9ef-43d6-b578-c5da746783ab/oauth2/v2.0/authorize',
-		required: true,
-		description: 'OAuth2 authorization endpoint (replace tenant ID if different)',
-	},
-	{
-		displayName: 'Access Token URL',
-		name: 'accessTokenUrl',
-		type: 'string',
-		default: 'https://login.microsoftonline.com/bc628184-c9ef-43d6-b578-c5da746783ab/oauth2/v2.0/token',
-		required: true,
-		description: 'OAuth2 token endpoint (replace tenant ID if different)',
-	},
+		{
+			displayName: 'Tenant ID',
+			name: 'tenantId',
+			type: 'string',
+			default: '',
+			required: true,
+			placeholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+			description: 'Your Azure AD Tenant ID (from Azure Portal > App registrations)',
+		},
+		{
+			displayName: 'Grant Type',
+			name: 'grantType',
+			type: 'hidden',
+			default: 'authorizationCode',
+		},
+		{
+			displayName: 'Authorization URL',
+			name: 'authUrl',
+			type: 'hidden',
+			default: '=https://login.microsoftonline.com/{{$self.tenantId}}/oauth2/v2.0/authorize',
+		},
+		{
+			displayName: 'Access Token URL',
+			name: 'accessTokenUrl',
+			type: 'hidden',
+			default: '=https://login.microsoftonline.com/{{$self.tenantId}}/oauth2/v2.0/token',
+		},
 		{
 			displayName: 'Scope',
 			name: 'scope',
-			type: 'hidden',
-			default: 'api://524e4423-a684-4c70-82f2-33b0168e8e87/claudeai openid profile offline_access',
+			type: 'string',
+			default: 'openid profile offline_access',
+			required: true,
+			description: 'OAuth2 scopes. Add your API scope (e.g., api://your-client-id/access)',
 		},
 		{
 			displayName: 'Auth URI Query Parameters',

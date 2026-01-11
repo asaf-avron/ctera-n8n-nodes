@@ -2,8 +2,8 @@
  * Unit tests for CteraFilesystem n8n node
  * Tests all filesystem operations using mocks (no real MCP/Portal needed)
  */
-import { CteraFilesystem } from '../../nodes/CteraFilesystem/CteraFilesystem.node';
-import { createMockExecuteFunctions } from '../mocks/ExecuteFunctions.mock';
+import { CteraFilesystem } from '../../../nodes/CteraFilesystem/CteraFilesystem.node';
+import { createMockExecuteFunctions } from './mocks/ExecuteFunctions.mock';
 import {
 	mockListDirectoryResponse,
 	mockEmptyDirectoryResponse,
@@ -23,7 +23,7 @@ import {
 	mockErrorPermissionDenied,
 	createSuccessResponse,
 	createErrorResponse,
-} from '../mocks/McpResponses.mock';
+} from './mocks/McpResponses.mock';
 
 describe('CteraFilesystem Node', () => {
 	let cteraFilesystem: CteraFilesystem;
@@ -37,8 +37,10 @@ describe('CteraFilesystem Node', () => {
 			expect(cteraFilesystem.description.displayName).toBe('CTERA Filesystem');
 			expect(cteraFilesystem.description.name).toBe('cteraFilesystem');
 			expect(cteraFilesystem.description.icon).toBe('file:ctera.svg');
-			expect(cteraFilesystem.description.credentials).toHaveLength(1);
-			expect(cteraFilesystem.description.credentials?.[0].name).toBe('cteraFilesystemApi');
+			expect(cteraFilesystem.description.credentials).toHaveLength(2);
+			const credentialNames = cteraFilesystem.description.credentials?.map((c) => c.name);
+			expect(credentialNames).toContain('cteraFilesystemApi');
+			expect(credentialNames).toContain('cteraPortalOAuth2Api');
 		});
 
 		it('should define all resources', () => {

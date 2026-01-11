@@ -17,7 +17,7 @@
         "resource": "directory",
         "path": "/"
       },
-      "type": "@ctera/n8n-nodes-ctera.cteraFilesystem",
+      "type": "CUSTOM.cteraFilesystem",
       "typeVersion": 1,
       "position": [
         -864,
@@ -38,7 +38,7 @@
         "operation": "walk",
         "path": "=/{{ $('Loop Over Cloud Folders').item.json.name }}"
       },
-      "type": "@ctera/n8n-nodes-ctera.cteraFilesystem",
+      "type": "CUSTOM.cteraFilesystem",
       "typeVersion": 1,
       "position": [
         -192,
@@ -58,7 +58,7 @@
         "operation": "delete",
         "paths": "={{ $json.pathsToDelete }}"
       },
-      "type": "@ctera/n8n-nodes-ctera.cteraFilesystem",
+      "type": "CUSTOM.cteraFilesystem",
       "typeVersion": 1,
       "position": [
         480,
@@ -200,7 +200,7 @@
         "path": "=/{{ $json.folderName }}/{{ $json.fileName }}",
         "content": "={{ $json.summary }}"
       },
-      "type": "@ctera/n8n-nodes-ctera.cteraFilesystem",
+      "type": "CUSTOM.cteraFilesystem",
       "typeVersion": 1,
       "position": [
         704,

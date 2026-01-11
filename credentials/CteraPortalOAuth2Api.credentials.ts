@@ -45,10 +45,19 @@ export class CteraPortalOAuth2Api implements ICredentialType {
 			description: 'Azure AD token endpoint. Replace YOUR-TENANT-ID with your Azure tenant ID',
 		},
 		{
+			displayName: 'API Scope',
+			name: 'apiScope',
+			type: 'string',
+			default: '',
+			required: true,
+			placeholder: 'api://YOUR-CLIENT-ID/access',
+			description: 'Your Azure AD API scope (e.g., api://client-id/access or api://client-id/claudeai). This is required for v2.0 tokens.',
+		},
+		{
 			displayName: 'Scope',
 			name: 'scope',
 			type: 'hidden',
-			default: 'api://524e4423-a684-4c70-82f2-33b0168e8e87/claudeai openid profile offline_access',
+			default: '={{$self.apiScope}} openid profile offline_access',
 		},
 		{
 			displayName: 'Auth URI Query Parameters',

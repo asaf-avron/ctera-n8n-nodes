@@ -45,7 +45,6 @@
     "n8nNodesApiVersion": 1,
     "credentials": [
       "dist/credentials/CteraAiMcpApi.credentials.js",
-      "dist/credentials/CteraFilesystemApi.credentials.js",
       "dist/credentials/CteraPortalOAuth2Api.credentials.js"
     ],
     "nodes": [

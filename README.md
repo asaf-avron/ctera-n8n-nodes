@@ -21,7 +21,7 @@ Perform storage operations on CTERA Portal via MCP:
 - **Links**: Public sharing links and permalinks
 - **Versions**: File version history
 
-Supports OAuth2 (Entra ID) or JWT bearer token authentication.
+Supports OAuth2 (Entra ID / Azure AD) authentication.
 
 **[Detailed Documentation →](nodes/CteraFilesystem/README.md)**
 
@@ -39,8 +39,7 @@ Interact with CTERA AI experts for semantic search and knowledge retrieval:
 
 | Credential | Used By | Description |
 |------------|---------|-------------|
-| CTERA Portal OAuth2 API | Filesystem | Entra ID SSO authentication |
-| CTERA Filesystem API | Filesystem | JWT bearer token authentication |
+| CTERA Portal OAuth2 API | Filesystem | Entra ID / Azure AD SSO authentication |
 | CTERA AI MCP API | Data Intelligence | MCP bearer token authentication |
 
 ## Development

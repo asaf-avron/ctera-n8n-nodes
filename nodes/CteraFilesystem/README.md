@@ -8,23 +8,13 @@ This node enables workflow automation for CTERA storage operations including fil
 
 ## Authentication
 
-The node supports two authentication methods:
-
-### Option 1: OAuth2 (Recommended)
-
-Uses Entra ID (Azure AD) for SSO authentication. Configure in n8n with:
+Uses Entra ID (Azure AD) OAuth2 for SSO authentication. Configure in n8n with:
 
 - **Portal URL**: Your CTERA Portal base URL (e.g., `https://portal.ctera.me`)
 - **Authorization URL**: Entra ID OAuth2 authorize endpoint
-- **Access Token URL**: Entra ID OAuth2 token endpoint
+- **Access Token URL**: Entra ID OAuth2 token endpoint  
 - **Client ID / Secret**: From your Entra ID app registration
-
-### Option 2: JWT Bearer Token
-
-Direct token authentication for simpler setups:
-
-- **MCP Server URL**: The MCP endpoint URL (e.g., `https://portal.ctera.me/_SRV/MCP`)
-- **Bearer Token**: JWT token from Portal (generate via Portal API)
+- **API Scope**: Your Azure AD API scope (e.g., `api://client-id/access`)
 - **Ignore SSL Issues**: Enable for self-signed certificates
 
 ## Resources & Operations

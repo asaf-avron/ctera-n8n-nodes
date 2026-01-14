@@ -22,12 +22,8 @@ export class CteraFilesystem implements INodeType {
 		outputs: ['main'],
 		credentials: [
 			{
-				name: 'cteraFilesystemApi',
-				required: false,
-			},
-			{
 				name: 'cteraPortalOAuth2Api',
-				required: false,
+				required: true,
 			},
 		],
 		properties: [
@@ -382,25 +378,12 @@ export class CteraFilesystem implements INodeType {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
 
-		// Try to get OAuth2 credentials first, fall back to simple bearer token
-		let bearerToken: string;
-		let allowUnauthorizedCerts = false;
-		let mcpServerUrl: string;
-
-		try {
-			// Try OAuth2 credential first
-			const oauth2Credentials = await this.getCredentials('cteraPortalOAuth2Api');
-			const oauthTokenData = oauth2Credentials.oauthTokenData as any;
-			bearerToken = oauthTokenData?.access_token as string;
-			mcpServerUrl = `${(oauth2Credentials.portalUrl as string).replace(/\/$/, '')}/_SRV/MCP`;
-			allowUnauthorizedCerts = oauth2Credentials.allowUnauthorizedCerts as boolean;
-		} catch {
-			// Fall back to simple bearer token credential
-			const simpleCredentials = await this.getCredentials('cteraFilesystemApi');
-			bearerToken = simpleCredentials.bearerToken as string;
-			allowUnauthorizedCerts = simpleCredentials.allowUnauthorizedCerts as boolean;
-			mcpServerUrl = (simpleCredentials.serverUrl as string).replace(/\/$/, '');
-		}
+		// Get OAuth2 credentials
+		const oauth2Credentials = await this.getCredentials('cteraPortalOAuth2Api');
+		const oauthTokenData = oauth2Credentials.oauthTokenData as any;
+		const bearerToken = oauthTokenData?.access_token as string;
+		const mcpServerUrl = `${(oauth2Credentials.portalUrl as string).replace(/\/$/, '')}/_SRV/MCP`;
+		const allowUnauthorizedCerts = oauth2Credentials.allowUnauthorizedCerts as boolean;
 
 		for (let i = 0; i < items.length; i++) {
 			try {

@@ -37,10 +37,9 @@ describe('CteraFilesystem Node', () => {
 			expect(cteraFilesystem.description.displayName).toBe('CTERA Filesystem');
 			expect(cteraFilesystem.description.name).toBe('cteraFilesystem');
 			expect(cteraFilesystem.description.icon).toBe('file:ctera.svg');
-			expect(cteraFilesystem.description.credentials).toHaveLength(2);
-			const credentialNames = cteraFilesystem.description.credentials?.map((c) => c.name);
-			expect(credentialNames).toContain('cteraFilesystemApi');
-			expect(credentialNames).toContain('cteraPortalOAuth2Api');
+			expect(cteraFilesystem.description.credentials).toHaveLength(1);
+			expect(cteraFilesystem.description.credentials?.[0].name).toBe('cteraPortalOAuth2Api');
+			expect(cteraFilesystem.description.credentials?.[0].required).toBe(true);
 		});
 
 		it('should define all resources', () => {
@@ -508,11 +507,11 @@ describe('CteraFilesystem Node', () => {
 	});
 
 	describe('Credentials & Authentication', () => {
-		it('should use custom server URL from credentials', async () => {
+		it('should use portal URL from OAuth2 credentials', async () => {
 			const mockExecute = createMockExecuteFunctions({
 				credentials: {
-					serverUrl: 'https://custom-mcp.example.com/api',
-					bearerToken: 'custom-token-123',
+					portalUrl: 'https://custom-portal.example.com',
+					oauthTokenData: { access_token: 'custom-token-123' },
 				},
 				nodeParameters: {
 					resource: 'file',
@@ -525,15 +524,15 @@ describe('CteraFilesystem Node', () => {
 			await cteraFilesystem.execute.call(mockExecute);
 
 			const requestCall = mockExecute.httpRequestCalls[0];
-			expect(requestCall.options.url).toBe('https://custom-mcp.example.com/api/mcp/');
+			expect(requestCall.options.url).toBe('https://custom-portal.example.com/_SRV/MCP/mcp/');
 			expect(requestCall.options.headers?.Authorization).toBe('Bearer custom-token-123');
 		});
 
-		it('should strip trailing slash from server URL', async () => {
+		it('should strip trailing slash from portal URL', async () => {
 			const mockExecute = createMockExecuteFunctions({
 				credentials: {
-					serverUrl: 'https://mcp.example.com/',
-					bearerToken: 'token',
+					portalUrl: 'https://portal.example.com/',
+					oauthTokenData: { access_token: 'token' },
 				},
 				nodeParameters: {
 					resource: 'file',
@@ -545,7 +544,7 @@ describe('CteraFilesystem Node', () => {
 
 			await cteraFilesystem.execute.call(mockExecute);
 
-			expect(mockExecute.httpRequestCalls[0].options.url).toBe('https://mcp.example.com/mcp/');
+			expect(mockExecute.httpRequestCalls[0].options.url).toBe('https://portal.example.com/_SRV/MCP/mcp/');
 		});
 
 		it('should respect allowUnauthorizedCerts setting', async () => {

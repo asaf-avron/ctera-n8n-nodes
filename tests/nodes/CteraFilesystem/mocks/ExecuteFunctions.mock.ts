@@ -12,8 +12,10 @@ import type {
 } from 'n8n-workflow';
 
 export interface MockCredentials {
-	serverUrl: string;
-	bearerToken: string;
+	portalUrl: string;
+	oauthTokenData: {
+		access_token: string;
+	};
 	allowUnauthorizedCerts: boolean;
 }
 
@@ -47,8 +49,10 @@ export function createMockExecuteFunctions(options: {
 	let httpError: Error | null = null;
 
 	const defaultCredentials: MockCredentials = {
-		serverUrl: 'http://mock-mcp:81/_SRV/MCP',
-		bearerToken: 'mock-jwt-token-for-testing',
+		portalUrl: 'http://mock-mcp:81',
+		oauthTokenData: {
+			access_token: 'mock-jwt-token-for-testing',
+		},
 		allowUnauthorizedCerts: false,
 		...credentials,
 	};

@@ -59,6 +59,10 @@ npm link
 cd ~/.n8n/nodes && npm link @ctera/n8n-nodes-ctera
 ```
 
+## Publishing
+
+See [PUBLISH.md](PUBLISH.md) for npm publishing guidelines.
+
 ## License
 
 [MIT](LICENSE)

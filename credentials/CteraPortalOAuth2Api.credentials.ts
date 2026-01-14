@@ -71,6 +71,13 @@ export class CteraPortalOAuth2Api implements ICredentialType {
 			type: 'hidden',
 			default: 'body',
 		},
+		{
+			displayName: 'Ignore SSL Issues',
+			name: 'allowUnauthorizedCerts',
+			type: 'boolean',
+			default: false,
+			description: 'Whether to connect even if SSL certificate validation fails (use for self-signed certificates)',
+		},
 	];
 
 	authenticate: IAuthenticateGeneric = {
@@ -96,6 +103,7 @@ export class CteraPortalOAuth2Api implements ICredentialType {
 				},
 				id: 1,
 			},
+			skipSslCertificateValidation: '={{$credentials.allowUnauthorizedCerts}}',
 		},
 	};
 }

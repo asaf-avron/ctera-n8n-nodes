@@ -393,7 +393,7 @@ export class CteraFilesystem implements INodeType {
 			const oauthTokenData = oauth2Credentials.oauthTokenData as any;
 			bearerToken = oauthTokenData?.access_token as string;
 			mcpServerUrl = `${(oauth2Credentials.portalUrl as string).replace(/\/$/, '')}/_SRV/MCP`;
-			allowUnauthorizedCerts = false; // OAuth2 should use proper SSL
+			allowUnauthorizedCerts = oauth2Credentials.allowUnauthorizedCerts as boolean;
 		} catch {
 			// Fall back to simple bearer token credential
 			const simpleCredentials = await this.getCredentials('cteraFilesystemApi');
